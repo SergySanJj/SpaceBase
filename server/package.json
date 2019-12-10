@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server part for space base project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergySanJj/SpaceBase.git"
+  },
+  "author": "Sergei Yarema (sergei.yaremawork@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergySanJj/SpaceBase/issues"
+  },
+  "homepage": "https://github.com/SergySanJj/SpaceBase#readme",
+  "dependencies": {
+    "chalk": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.1"
+  }
+}
