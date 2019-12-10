@@ -1,11 +1,11 @@
 'use strict';
 
-const osinfo = require('./osinfo')
-osinfo.logInfo("Star Base Server")
+// const osinfo = require('./osinfo')
+// osinfo.logInfo("Star Base Server")
 
-const Uptime = require('./uptime')
-let timing = new Uptime()
-timing.startUptime()
+// const Uptime = require('./uptime')
+// let timing = new Uptime()
+// timing.startUptime()
 
 
 // Server
