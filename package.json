@@ -1,10 +1,11 @@
 {
-  "name": "server",
+  "name": "star-base-server",
   "version": "1.0.0",
   "description": "Server part for space base project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,8 @@
   },
   "homepage": "https://github.com/SergySanJj/SpaceBase#readme",
   "dependencies": {
-    "chalk": "^3.0.0"
+    "chalk": "^3.0.0",
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.1"
