@@ -2,10 +2,11 @@
   "name": "star-base-server",
   "version": "1.0.0",
   "description": "Server part for space base project",
-  "main": "server/index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "nodemon server/index.js"
+    "postinstall": "webpack -p",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
