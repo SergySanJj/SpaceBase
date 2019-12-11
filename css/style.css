@@ -5,6 +5,8 @@ html, body {
 
 #canvas {
     position: absolute;
+    width: 100%;
+    height: 100%;
     z-index: 0;
 }
 
@@ -29,6 +31,8 @@ div.gui {
     flex-direction: row;
     flex-wrap: nowrap;
     opacity: 1.0;
+
+    pointer-events: none; /*pass through*/
 }
 
 
@@ -101,6 +105,8 @@ div.control-block {
     border-width: 2px;
     border-style: solid;
     color: aliceblue;
+
+    pointer-events: all;
 }
 
 div.control-block p {
