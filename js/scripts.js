@@ -1,5 +1,11 @@
 import css from '../css/style.css';
 
+import * as THREE from 'three';
+import GLTFLoader from 'three-gltf-loader';
+import {OrbitControls} from 'three-orbit-controls'
+
+let scene, camera, renderer;
+
 window.onload = function () {
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -17,35 +23,44 @@ window.onload = function () {
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    let renderer = new THREE.WebGLRenderer({canvas: canvas});
-    renderer.setClearColor(0x000000);
+    renderer = new THREE.WebGLRenderer({canvas: canvas});
+    //renderer.setClearColor(0x000000);
 
-    let scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
-    let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
+    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
     camera.position.set(0, 0, 1000);
 
     let light = new THREE.AmbientLight(0xffffff);
     scene.add(light);
 
-    let geometry = new THREE.SphereGeometry(300, 12, 12);
-    let material = new THREE.MeshBasicMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+    // model
+    let material = new THREE.MeshBasicMaterial({color: 0xffffff});
 
-    for (let i = 0; i < geometry.faces.length; i++) {
-        geometry.faces[i].color.setRGB(Math.random(), Math.random(), Math.random())
-    }
+    let loader = new GLTFLoader();
+    loader.load('../models/greenstar.glb',  (gltf)=> {
+        const root = gltf.scene;
+        scene.add(root);
+        console.log(dumpObject(root).join('\n'));
+    });
 
-    let mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    // renderer = new THREE.WebGLRenderer({antialias: true});
+    // renderer.setPixelRatio(window.devicePixelRatio);
+    // renderer.setSize(window.innerWidth, window.innerHeight);
+    // renderer.gammaOutput = true;
 
-    let loop = () => {
-        mesh.rotation.y += Math.PI / 500;
-
-        renderer.render(scene, camera);
-        requestAnimationFrame(() => {
-            loop();
-        });
-    };
-
-    loop();
+    renderer.render(scene, camera);
 };
+
+function dumpObject(obj, lines = [], isLast = true, prefix = '') {
+    const localPrefix = isLast ? '└─' : '├─';
+    lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+    const newPrefix = prefix + (isLast ? '  ' : '│ ');
+    const lastNdx = obj.children.length - 1;
+    obj.children.forEach((child, ndx) => {
+        const isLast = ndx === lastNdx;
+        dumpObject(child, lines, isLast, newPrefix);
+    });
+    return lines;
+};
+

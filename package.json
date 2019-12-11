@@ -6,7 +6,8 @@
   "scripts": {
     "postinstall": "webpack -p",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -22,13 +23,17 @@
     "chalk": "^3.0.0",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
+    "three-gltf-loader": "^1.111.0",
     "three-js": "^79.0.0",
+    "three-orbit-controls": "^82.1.0",
     "webpack": "^4.41.2"
   },
   "devDependencies": {
     "css-loader": "^3.3.0",
     "nodemon": "^2.0.1",
     "style-loader": "^1.0.1",
-    "webpack-cli": "^3.3.10"
+    "three": "^0.111.0",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
   }
 }

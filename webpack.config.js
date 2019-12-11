@@ -18,6 +18,6 @@ module.exports = {
     },
     devServer: {
         inline:true,
-        port: 10000
+        port: 9000
     }
 };
