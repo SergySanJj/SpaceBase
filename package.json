@@ -5,10 +5,8 @@
   "main": "server.js",
   "scripts": {
     "postinstall": "webpack -p",
-
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "webpack-dev-server"
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
