@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 1337;
 
 app.get('/', function (req, res) {
-  res.send('Hello World!');
+  res.sendFile('./client/html/index.html', {root: __dirname })
 });
 
 app.listen(PORT, function () {

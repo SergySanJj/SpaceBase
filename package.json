@@ -2,10 +2,10 @@
   "name": "star-base-server",
   "version": "1.0.0",
   "description": "Server part for space base project",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,9 +20,14 @@
   "dependencies": {
     "chalk": "^3.0.0",
     "ejs": "^3.0.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "three-js": "^79.0.0",
+    "webpack": "^4.41.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.1"
+    "css-loader": "^3.3.0",
+    "nodemon": "^2.0.1",
+    "style-loader": "^1.0.1",
+    "webpack-cli": "^3.3.10"
   }
 }
