@@ -4,8 +4,8 @@
   "description": "Server part for space base project",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "postinstall": "webpack -p",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
