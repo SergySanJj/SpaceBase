@@ -1,23 +1,27 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
+const path = require('path');
+
 
 module.exports = {
     context: __dirname,
     devtool: "source-map",
-    entry: "./js/scripts.js",
+    entry: {index: path.resolve(__dirname, 'js/scripts.js')},
     output: {
-        path: __dirname + "/dist",
+        path: path.resolve(__dirname, 'public/'),
         filename: "bundle.js"
     },
-    module:{
+    module: {
         rules: [
             {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
             }
-        ]
+        ],
     },
+
+
     devServer: {
-        inline:true,
+        inline: true,
         port: 8080
     }
 };
