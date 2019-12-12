@@ -2,12 +2,16 @@ import * as THREE from 'three'
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 import GLTFLoader from 'three-gltf-loader';
+import {Planet} from './planet'
+
+import {randomSpaceMap} from './resources';
 
 export class Game {
     constructor(canvasId = 'canvas') {
         let canvas = document.getElementById('canvas');
         this.canvas = canvas;
-        this.renderer = new THREE.WebGLRenderer({canvas});
+        this.renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+        this.renderer.autoClearColor = false;
 
         const fov = 45;
         const aspect = window.innerWidth / window.innerHeight;  // the canvas default
@@ -21,17 +25,19 @@ export class Game {
         this.controls.update();
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color('black');
+        //this.scene.background = new THREE.Color('black');
 
         this.setupLights();
         this.loadPlanetModel();
         this.resize();
+
+        this.setSpaceBackground();
     }
 
     setupLights() {
         {
             const skyColor = 0xB1E1FF;  // light blue
-            const groundColor = 0xB97A20;  // brownish orange
+            const groundColor = 0xB1E1FF;
             const intensity = 1;
             const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
             this.scene.add(light);
@@ -48,21 +54,14 @@ export class Game {
     }
 
     loadPlanetModel() {
-        this.planetElements = [];
+        let planetElements = [];
+        let root;
         const gltfLoader = new GLTFLoader();
         gltfLoader.load('../models/planetgroup.gltf', (gltf) => {
-            const root = gltf.scene;
+            root = gltf.scene;
             this.scene.add(root);
 
-
-            console.log(dumpObject(root));
-            let planet = root.children;
-            console.log(planet);
-
             root.updateMatrixWorld();
-            for (const elem of planet.slice()) {
-                this.planetElements.push(elem);
-            }
 
             // compute the box that contains all the stuff
             // from root and below
@@ -78,25 +77,58 @@ export class Game {
             this.controls.maxDistance = boxSize * 10;
             this.controls.target.copy(boxCenter);
             this.controls.update();
+
+            for (const elem of root.children.slice()) {
+                planetElements.push(elem);
+            }
+
+            this.planet = new Planet(planetElements);
         });
-        console.log(this.planetElements);
     }
 
-    run(){
+    setSpaceBackground(){
+        this.bgScene = new THREE.Scene();
+
+        {
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load(
+                randomSpaceMap()
+            );
+            texture.magFilter = THREE.LinearFilter;
+            texture.minFilter = THREE.LinearFilter;
+
+            const shader = THREE.ShaderLib.equirect;
+            const material = new THREE.ShaderMaterial({
+                fragmentShader: shader.fragmentShader,
+                vertexShader: shader.vertexShader,
+                uniforms: shader.uniforms,
+                depthWrite: false,
+                side: THREE.BackSide,
+            });
+            material.uniforms.tEquirect.value = texture;
+            const plane = new THREE.BoxBufferGeometry(2, 2, 2);
+            this.bgMesh = new THREE.Mesh(plane, material);
+            this.bgScene.add(this.bgMesh);
+        }
+    }
+
+
+    run() {
         let lastTime = Date.now();
-        const fullRotation = 24 * 3600 * 1000;
-        const speed = 3600.0;
-        const rotPerMilliSecond = speed * 2 * Math.PI / fullRotation;
         let self = this;
+
         function render(time) {
             time *= 0.001;  // convert to seconds
-
             let delta = Date.now() - lastTime;
             lastTime = Date.now();
 
-            for (const el of self.planetElements) {
-                el.rotation.y += delta * rotPerMilliSecond;
+            if (!(self.planet === undefined)) {
+                self.planet.animate(time, delta);
             }
+
+            self.bgMesh.position.copy(self.camera.position);
+            self.renderer.render(self.bgScene, self.camera);
+
 
             self.renderer.render(self.scene, self.camera);
             requestAnimationFrame(render);
@@ -105,7 +137,8 @@ export class Game {
         requestAnimationFrame(render);
     }
 
-    resize(){
+
+    resize() {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.renderer.aspect = window.innerWidth / window.innerHeight;
@@ -152,4 +185,3 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
-// module.exports = {Game};
