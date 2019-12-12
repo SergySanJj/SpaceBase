@@ -6,14 +6,7 @@ const OrbitControls = require('three-orbit-controls')(THREE);
 import GLTFLoader from 'three-gltf-loader';
 
 
-let water;
-let ground;
-let atmosphere;
-const fixes = [
-    {prefix: "sky", v: atmosphere},
-    {prefix: "sea", v: water},
-    {prefix: "ground", v: ground}
-];
+let planetElements = []
 
 let canvas, renderer, camera, scene, controls;
 
@@ -40,18 +33,18 @@ window.onload = () => {
 
     {
         const gltfLoader = new GLTFLoader();
-        gltfLoader.load('../models/planet.glb', (gltf) => {
+        gltfLoader.load('../models/planetgroup.gltf', (gltf) => {
             const root = gltf.scene;
             scene.add(root);
-            console.log(root.children);
 
+
+            console.log(dumpObject(root));
             let planet = root.children;
             console.log(planet);
+
             root.updateMatrixWorld();
-            for (const obj of planet.slice()) {
-                const fix = fixes.find(fix => obj.name.startsWith(fix.prefix));
-                fix.v = obj;
-                console.log(fix);
+            for (const elem of planet.slice()) {
+                planetElements.push(elem);
             }
 
             // compute the box that contains all the stuff
@@ -69,6 +62,7 @@ window.onload = () => {
             controls.target.copy(boxCenter);
             controls.update();
         });
+        console.log(planetElements);
     }
 
     {
@@ -88,17 +82,32 @@ window.onload = () => {
         scene.add(light.target);
     }
 
+    let lastTime = Date.now();
+    const fullRotation = 24 * 3600 * 1000;
+    const speed = 3600.0;
+    const rotPerMilliSecond = speed * 2 * Math.PI / fullRotation;
+
     function render(time) {
         time *= 0.001;  // convert to seconds
 
-        let speed = 10.0;
+        let delta = Date.now() - lastTime;
+        lastTime = Date.now();
 
+        for (const el of planetElements) {
+            el.rotation.y += delta * rotPerMilliSecond;
+        }
 
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
+};
+
+window.onresize = () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    renderer.aspect = window.innerWidth / window.innerHeight;
 };
 
 
