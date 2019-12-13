@@ -3,6 +3,7 @@ const path = require('path');
 
 
 module.exports = {
+    target: "web",
     context: __dirname,
     devtool: "source-map",
     entry: {index: path.resolve(__dirname, 'js/scripts.js')},
@@ -22,6 +23,9 @@ module.exports = {
 
     devServer: {
         inline: true,
-        port: 8080
+        port: 8080,
+        publicPath: '/public/',
+        contentBase: __dirname,
+        watchContentBase: true,
     }
 };
