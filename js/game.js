@@ -6,6 +6,7 @@ import {Planet} from './planet'
 
 import {randomSpaceMap} from './resources';
 import {Vector3} from "three";
+import {OrbitingObject} from "./orbitingobject";
 
 export class Game {
     constructor(canvasId = 'canvas') {
@@ -22,6 +23,7 @@ export class Game {
         this.setupLights();
         this.loadPlanetModel('../models/planetgroup.gltf');
         // this.createOceanSphere();
+        this.createMoon();
         this.resize();
         this.setSpaceBackground();
     }
@@ -83,27 +85,38 @@ export class Game {
     setSpaceBackground() {
         this.bgScene = new THREE.Scene();
 
-        {
-            const loader = new THREE.TextureLoader();
-            const texture = loader.load(
-                randomSpaceMap()
-            );
-            texture.magFilter = THREE.LinearFilter;
-            texture.minFilter = THREE.LinearFilter;
+        const loader = new THREE.CubeTextureLoader();
+        const texture = loader.load([
+            randomSpaceMap(),
+            randomSpaceMap(),
+            randomSpaceMap(),
+            randomSpaceMap(),
+            randomSpaceMap(),
+            randomSpaceMap(),
+        ]);
+        this.bgScene.background = texture;
 
-            const shader = THREE.ShaderLib.equirect;
-            const material = new THREE.ShaderMaterial({
-                fragmentShader: shader.fragmentShader,
-                vertexShader: shader.vertexShader,
-                uniforms: shader.uniforms,
-                depthWrite: false,
-                side: THREE.BackSide,
-            });
-            material.uniforms.tEquirect.value = texture;
-            const plane = new THREE.BoxBufferGeometry(2, 2, 2);
-            this.bgMesh = new THREE.Mesh(plane, material);
-            this.bgScene.add(this.bgMesh);
-        }
+        // {
+        //     const loader = new THREE.TextureLoader();
+        //     const texture = loader.load(
+        //         randomSpaceMap()
+        //     );
+        //     texture.magFilter = THREE.LinearFilter;
+        //     texture.minFilter = THREE.LinearFilter;
+        //
+        //     const shader = THREE.ShaderLib.equirect;
+        //     const material = new THREE.ShaderMaterial({
+        //         fragmentShader: shader.fragmentShader,
+        //         vertexShader: shader.vertexShader,
+        //         uniforms: shader.uniforms,
+        //         depthWrite: false,
+        //         side: THREE.BackSide,
+        //     });
+        //     material.uniforms.tEquirect.value = texture;
+        //     const plane = new THREE.BoxBufferGeometry(2, 2, 2);
+        //     this.bgMesh = new THREE.Mesh(plane, material);
+        //     this.bgScene.add(this.bgMesh);
+        // }
     }
 
     createOceanSphere() {
@@ -147,6 +160,20 @@ void main() {
         this.scene.add(sphere);
     }
 
+    createMoon() {
+        let geo = new THREE.SphereGeometry(0.1, 12, 12);
+        let mat = new THREE.MeshLambertMaterial({color: 0xffffff});
+
+        let mesh = new THREE.Mesh(geo, mat);
+        mesh.position.y = 4;
+
+
+        let orbitObj = new OrbitingObject("Moon", mesh, Math.PI/3600, new Vector3(0, 0, 0));
+        this.animatables.push(orbitObj);
+
+        this.scene.add(mesh);
+    }
+
 
     run() {
         let lastTime = Date.now();
@@ -157,11 +184,11 @@ void main() {
             let delta = Date.now() - lastTime;
             lastTime = Date.now();
 
-            for (let animatable of self.animatables){
-                animatable.animate(time,delta);
+            for (let animatable of self.animatables) {
+                animatable.animate(time, delta);
             }
 
-            self.bgMesh.position.copy(self.camera.position);
+            //self.bgMesh.position.copy(self.camera.position);
             self.renderer.render(self.bgScene, self.camera);
 
 
