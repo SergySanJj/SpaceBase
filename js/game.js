@@ -11,14 +11,17 @@ export class Game {
     constructor(canvasId = 'canvas') {
         let canvas = document.getElementById('canvas');
         this.canvas = canvas;
-        this.renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+        this.renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true});
         this.renderer.autoClearColor = false;
         this.scene = new THREE.Scene();
+
+        this.animatables = [];
 
         this.setupCamera();
         this.initControls();
         this.setupLights();
-        this.loadPlanetModel();
+        this.loadPlanetModel('../models/planetgroup.gltf');
+        // this.createOceanSphere();
         this.resize();
         this.setSpaceBackground();
     }
@@ -58,11 +61,11 @@ export class Game {
         }
     }
 
-    loadPlanetModel() {
+    loadPlanetModel(modelURL) {
         let planetElements = [];
         let root;
         const gltfLoader = new GLTFLoader();
-        gltfLoader.load('../models/planetgroup.gltf', (gltf) => {
+        gltfLoader.load(modelURL, (gltf) => {
             root = gltf.scene;
             this.scene.add(root);
 
@@ -72,7 +75,8 @@ export class Game {
                 planetElements.push(elem);
             }
 
-            this.planet = new Planet(planetElements);
+            let planet = new Planet(planetElements);
+            this.animatables.push(planet);
         });
     }
 
@@ -102,6 +106,47 @@ export class Game {
         }
     }
 
+    createOceanSphere() {
+        const geometry = new THREE.SphereBufferGeometry(4, 64, 64);
+
+        let vertexShader = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+        `;
+
+        let fragmentShader = `
+#define EPSILON 0.1
+
+varying vec2 vUv;
+
+void main() {
+    if ((fract(vUv.x * 10.0) < EPSILON)
+        || (fract(vUv.y * 10.0) < EPSILON)) {
+        gl_FragColor = vec4(vec3(0.0), 1.0);
+    } else {
+        gl_FragColor = vec4(1.0);
+    }
+}
+        `;
+
+        const shaderMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: {value: 1.0},
+            },
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader
+        });
+
+        const sphere = new THREE.Mesh(geometry, shaderMaterial);
+
+        this.scene.add(sphere);
+    }
+
 
     run() {
         let lastTime = Date.now();
@@ -112,8 +157,8 @@ export class Game {
             let delta = Date.now() - lastTime;
             lastTime = Date.now();
 
-            if (!(self.planet === undefined)) {
-                self.planet.animate(time, delta);
+            for (let animatable of self.animatables){
+                animatable.animate(time,delta);
             }
 
             self.bgMesh.position.copy(self.camera.position);

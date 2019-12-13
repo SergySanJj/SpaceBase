@@ -1,10 +1,14 @@
-export class Planet {
+import {Animatable} from "./animatable";
+
+export class Planet extends Animatable {
     constructor(data) {
+        super("Planet");
         this.data = data;
         this.sky = getElement("sky", data);
         this.ground = getElement("ground", data);
         this.sea = getElement("sea", data);
     }
+
 
     animate(timeDelta, realSecondsDelta) {
         const fullRotation = 24 * 3600 * 1000;
@@ -14,7 +18,7 @@ export class Planet {
         this.sea.rotation.y += realSecondsDelta * rotPerMilliSecond * 1.1;
 
         this.sky.rotation.y += realSecondsDelta * rotPerMilliSecond * 0.3 * Math.random();
-    }
+    };
 }
 
 function getElement(elementName, elements) {
