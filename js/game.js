@@ -5,6 +5,7 @@ import GLTFLoader from 'three-gltf-loader';
 import {Planet} from './planet'
 
 import {randomSpaceMap} from './resources';
+import {Vector3} from "three";
 
 export class Game {
     constructor(canvasId = 'canvas') {
@@ -12,26 +13,30 @@ export class Game {
         this.canvas = canvas;
         this.renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
         this.renderer.autoClearColor = false;
+        this.scene = new THREE.Scene();
 
+        this.setupCamera();
+        this.initControls();
+        this.setupLights();
+        this.loadPlanetModel();
+        this.resize();
+        this.setSpaceBackground();
+    }
+
+    setupCamera() {
         const fov = 45;
         const aspect = window.innerWidth / window.innerHeight;  // the canvas default
         const near = 0.1;
         const far = 100;
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this.camera.position.set(0, 10, 20);
+        this.camera.position.set(0, 10, 10);
+    }
 
+    initControls() {
         this.controls = new OrbitControls(this.camera, this.canvas);
-        this.controls.target.set(0, 5, 0);
+        this.controls.target.set(0, 0, 0);
         this.controls.update();
 
-        this.scene = new THREE.Scene();
-        //this.scene.background = new THREE.Color('black');
-
-        this.setupLights();
-        this.loadPlanetModel();
-        this.resize();
-
-        this.setSpaceBackground();
     }
 
     setupLights() {
@@ -63,21 +68,6 @@ export class Game {
 
             root.updateMatrixWorld();
 
-            // compute the box that contains all the stuff
-            // from root and below
-            const box = new THREE.Box3().setFromObject(root);
-
-            const boxSize = box.getSize(new THREE.Vector3()).length();
-            const boxCenter = box.getCenter(new THREE.Vector3());
-
-            // set the camera to frame the box
-            frameArea(boxSize * 0.5, boxSize, boxCenter, this.camera);
-
-            // update the Trackball controls to handle the new size
-            this.controls.maxDistance = boxSize * 10;
-            this.controls.target.copy(boxCenter);
-            this.controls.update();
-
             for (const elem of root.children.slice()) {
                 planetElements.push(elem);
             }
@@ -86,7 +76,7 @@ export class Game {
         });
     }
 
-    setSpaceBackground(){
+    setSpaceBackground() {
         this.bgScene = new THREE.Scene();
 
         {
